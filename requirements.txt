@@ -64,7 +64,7 @@ llama-index-readers-file==0.2.2
 flashrank==0.2.10
 docx2txt==0.8
 nest-asyncio==1.6.0
-rapidocr-onnxruntime==1.4.4
+#rapidocr-onnxruntime==1.4.4
 seaborn==0.13.2
 grandalf==0.8
 rouge-score==0.1.2
