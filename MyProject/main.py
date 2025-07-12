@@ -4,12 +4,15 @@ from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-
+from langchain_teddynote.prompts import load_prompt
+from langsmith import Client
 
 load_dotenv(dotenv_path='.env')
 
-st.title("나만의 챗GPT")
+import os
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
 
+st.title("나만의 챗GPT🐎")
 
 # 처음 1번만 실행
 if "messages" not in st.session_state:
@@ -19,6 +22,10 @@ if "messages" not in st.session_state:
 # 사이드바 생성
 with st.sidebar:
     clear_btn = st.button("초기화")
+
+    selected_prompt = st.selectbox(
+    "프롬프트를 선택해주세요", ("기본모드", "SNS 게시글", "요약"), index=0
+)
 
 
 # 이전 대화를 출력
@@ -33,15 +40,21 @@ def add_message(role, message):
     st.session_state["messages"].append(ChatMessage(role=role, content=message))
 
 # 체인 생성
-def create_chain():
+def create_chain(prompt_type):
     # prompt | llm | output_parser
-    # 프롬프트
     prompt = ChatPromptTemplate.from_messages([
         ("system", "당신은 친절한 AI 어시스턴트입니다."),
         ("user", "#Question:\n{question}"),
     ])
+    if prompt_type == "SNS 게시글":
+        prompt = load_prompt("prompts/sns.yaml", encoding="utf-8")
+    elif prompt_type == "요약":
+        # Create a LANGSMITH_API_KEY in Settings > API Keys
+        client = Client(api_key=LANGSMITH_API_KEY)
+        prompt = client.pull_prompt("teddynote/chain-of-density-korean", include_model=True)
+
     # GPT
-    llm=ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.0)
+    llm=ChatOpenAI(model_name="gpt-4o", temperature=0.0)
     # 출력 파서
     output_parser = StrOutputParser()
 
@@ -64,7 +77,9 @@ if user_input:
     st.chat_message("user").write(user_input)
 
     # 체인 생성 
-    chain = create_chain()
+    chain = create_chain(selected_prompt)
+
+    # 스트리밍 호출 
     response = chain.stream({"question": user_input})
     with st.chat_message("assistant"):
         # 빈 공간(컨테이너)을 만들어서, 여기에 토큰을 스트리밍 출력한다.
