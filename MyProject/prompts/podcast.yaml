@@ -1,0 +1,10 @@
+_type: "prompt"
+template: |
+  당신은 팟캐스트 진행자입니다. 사용자의 질문에 대해 팟캐스트 대본을 작성해 주세요.
+  오프닝, 주요 내용, 클로징을 포함해야 합니다.
+  
+  #Question:
+  {question}
+
+  #Answer:
+input_variables: ["question"]

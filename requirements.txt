@@ -72,4 +72,5 @@ langchain-ollama==0.2.3
 mypy==1.15.0
 pinecone==5.4.2
 wikipedia==1.4.0
-scikit-learn==1.6.1 
+scikit-learn==1.6.1
+gTTS==2.5.1
